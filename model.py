@@ -1,7 +1,7 @@
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-
+import os 
 def weights_init_(m):
     if isinstance(m, nn.Linear):
         torch.nn.init.xavier_uniform_(m.weight, gain=1)
@@ -26,6 +26,18 @@ class Critic(nn.Module):
         x2 = F.relu(self.linear5(x2))
         return self.linear3(x1), self.linear6(x2)
 
+    def save_checkpoint(self, path='models'):   # ✅ added
+        os.makedirs(path, exist_ok=True)
+        filepath = os.path.join(path, 'Critic.pth')
+        torch.save(self.state_dict(), filepath)
+        print(f"  Saved {filepath}")
+
+    def load_checkpoint(self, path='models'):   # ✅ added
+        filepath = os.path.join(path, 'Critic.pth')
+        self.load_state_dict(torch.load(filepath, map_location='cpu'))
+        print(f"  Loaded {filepath}")
+
+
 class Actor(nn.Module): 
     def __init__(self, num_inputs, num_actions, hidden_dim, action_space=None):
         super(Actor, self).__init__()
@@ -48,3 +60,14 @@ class Actor(nn.Module):
         x_t = normal.rsample()
         action = torch.tanh(x_t) * self.action_scale + self.action_bias
         return action
+
+    def save_checkpoint(self, path='models'):   # ✅ added
+        os.makedirs(path, exist_ok=True)
+        filepath = os.path.join(path, 'Actor.pth')
+        torch.save(self.state_dict(), filepath)
+        print(f"  Saved {filepath}")
+
+    def load_checkpoint(self, path='models'):   # ✅ added
+        filepath = os.path.join(path, 'Actor.pth')
+        self.load_state_dict(torch.load(filepath, map_location='cpu'))
+        print(f"  Loaded {filepath}")
